@@ -30,11 +30,13 @@ print "fetching file '#{name}' (#{size}B)..."
 
 send = Thread.new {
   ssl.write inp.read CHUNK_SIZE until inp.eof?
+  puts "senddone"
 }
 
 recv = Thread.new {
   size = size.to_i
   out.write ssl.read [CHUNK_SIZE, size - out.pos].min while out.pos < size
+  puts "recvdone"
 }
 
 send.join
