@@ -22,6 +22,8 @@ ssl = TCPSocket.new host, port
 inp = File.open ARGV.shift, "rb"
 ssl.puts "#{inp.size}:#{File.basename(inp.path)}"
 
+ssl.puts "PONG" until ssl.gets.chomp == "GO"
+
 size, name = ssl.gets.chomp.split ':', 2
 name = "_" + name while File.exists? name # unique name
 
@@ -30,13 +32,11 @@ print "fetching file '#{name}' (#{size}B)..."
 
 send = Thread.new {
   ssl.write inp.read CHUNK_SIZE until inp.eof?
-  puts "senddone"
 }
 
 recv = Thread.new {
   size = size.to_i
   out.write ssl.read [CHUNK_SIZE, size - out.pos].min while out.pos < size
-  puts "recvdone"
 }
 
 send.join
